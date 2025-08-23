@@ -11,18 +11,18 @@
             align-items: center;
             flex-direction: column;
             padding: 20px;
-            background-color: #f4f4f4;
+            background-color: #00f4f4;
         }
         #player-container {
             background-color: #fff;
             padding: 20px;
             border-radius: 8px;
             box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-            width: 120%;
+            width: 150%;
             max-width: 600px;
         }
         #track-selector {
-            width: 100%;
+            width: 80%;
             padding: 10px;
             margin-bottom: 20px;
             border-radius: 4px;
