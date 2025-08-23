@@ -14,8 +14,9 @@
 
   <script>
     const tracks = [
-      "track-*.mp3"
-
+      "track1.mp3"
+      "track2.mp3"
+      "track3.mp3"
     ];
     let current = 0;
 
@@ -44,4 +45,3 @@
 </body>
 
 </html>
-
