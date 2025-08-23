@@ -1,113 +1,111 @@
+<!DOCTYPE html>
 <html lang="zh-TW">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>音樂播放器 (下拉式選單)</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            flex-direction: column;
-            padding: 20px;
-            background-color: #f4f4f4;
-        }
-        #player-container {
-            background-color: #fff;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-            width: 200%;
-            max-width: 800px;
-            text-align: center;
-        }
-        #media-title {
-            margin-top: 0;
-            color: #333;
-            height: 24px; /* 保留空間，避免載入時畫面跳動 */
-        }
-        #track-selector {
-            width: 100%;
-            padding: 10px;
-            margin-bottom: 20px;
-            border-radius: 4px;
-            border: 1px solid #ccc;
-            font-size: 16px;
-        }
-        #audio-player {
-            margin-top: 10px;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>模組化音樂播放器</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f4f4f4;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
+      padding: 20px;
+    }
+    #player-container {
+      background-color: #fff;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+      width: 100%;
+      max-width: 800px;
+      text-align: center;
+    }
+    #track-selector {
+      width: 100%;
+      padding: 10px;
+      margin-bottom: 20px;
+      font-size: 16px;
+    }
+    #audio-player {
+      width: 100%;
+      margin-top: 10px;
+    }
+    #media-info {
+      margin-top: 10px;
+      color: #333;
+    }
+  </style>
 </head>
 <body>
-    <div id="player-container">
-        <h1>音樂播放器</h1>
-        
-        <select id="track-selector"></select>
-
-        <audio id="audio-player" controls style="width: 100%;"></audio>
+  <div id="player-container">
+    <h1>音樂播放器</h1>
+    <select id="track-selector"></select>
+    <div id="media-info">
+      <div id="media-title">標題：-</div>
+      <div id="media-artist">歌手：-</div>
+      <div id="media-album">專輯：-</div>
     </div>
+    <audio id="audio-player" controls></audio>
+  </div>
 
-    <script>
-        const trackSelector = document.getElementById('track-selector');
-        const audioPlayer = document.getElementById('audio-player');
-        const totalTracks = 5; // 這裡請設定您的音檔總數
+  <script>
+    const trackSelector = document.getElementById('track-selector');
+    const audioPlayer = document.getElementById('audio-player');
+    const mediaTitle = document.getElementById('media-title');
+    const mediaArtist = document.getElementById('media-artist');
+    const mediaAlbum = document.getElementById('media-album');
+    let trackList = [];
 
-        // 載入音檔列表到下拉式選單
-        function loadTracks() {
-            let tracksLoaded = 0;
-            
-            for (let i = 1; i <= totalTracks; i++) {
-                // 檢查檔案是否存在，並在存在時才新增到選單
-                const audio = new Audio(`tracks/track-${i}.mp3`);
-                audio.addEventListener('canplaythrough', () => {
-                    const option = document.createElement('option');
-                    option.value = i;
-                    option.textContent = `Track ${i}`;
-                    trackSelector.appendChild(option);
-                    tracksLoaded++;
-                    
-                    // 自動選擇並播放第一個音檔
-                    if (tracksLoaded === 1) {
-                        trackSelector.value = 1;
-                        playTrack(1);
-                    }
-                }, { once: true });
+    async function loadTrackData() {
+      try {
+        const response = await fetch('tracks.json');
+        trackList = await response.json();
 
-                audio.addEventListener('error', () => {
-                    console.error(`無法載入 tracks/track-${i}.mp3`);
-                });
-            }
-        }
-
-        // 播放選定的音檔
-        function playTrack(index) {
-            const trackPath = `tracks/track-${index}.mp3`;
-            audioPlayer.src = trackPath;
-            audioPlayer.play();
-        }
-
-        // 當下拉式選單改變時，播放選定的音檔
-        trackSelector.addEventListener('change', (event) => {
-            const selectedIndex = event.target.value;
-            playTrack(selectedIndex);
+        trackList.forEach(track => {
+          const option = document.createElement('option');
+          option.value = track.id;
+          option.textContent = `${track.title} - ${track.artist}`;
+          trackSelector.appendChild(option);
         });
 
-        // 當前一個音檔播放完畢，自動播放下一首
-        audioPlayer.addEventListener('ended', () => {
-            const currentIndex = parseInt(trackSelector.value);
-            const nextIndex = currentIndex + 1;
-            
-            // 檢查下一首是否在選單中
-            const nextOption = trackSelector.querySelector(`option[value='${nextIndex}']`);
-            if (nextOption) {
-                trackSelector.value = nextIndex;
-                playTrack(nextIndex);
-            }
-        });
+        if (trackList.length > 0) {
+          trackSelector.value = trackList[0].id;
+          playTrack(trackList[0].id);
+        }
+      } catch (error) {
+        console.error('載入曲目資料失敗：', error);
+      }
+    }
 
-        loadTracks();
-    </script>
+    function playTrack(id) {
+      const track = trackList.find(t => t.id == id);
+      if (!track) return;
+
+      audioPlayer.src = track.file;
+      audioPlayer.play();
+
+      mediaTitle.textContent = `標題：${track.title}`;
+      mediaArtist.textContent = `歌手：${track.artist}`;
+      mediaAlbum.textContent = `專輯：${track.album}`;
+    }
+
+    trackSelector.addEventListener('change', (e) => {
+      playTrack(e.target.value);
+    });
+
+    audioPlayer.addEventListener('ended', () => {
+      const currentIndex = trackList.findIndex(t => t.id == trackSelector.value);
+      const nextTrack = trackList[currentIndex + 1];
+      if (nextTrack) {
+        trackSelector.value = nextTrack.id;
+        playTrack(nextTrack.id);
+      }
+    });
+
+    loadTrackData();
+  </script>
 </body>
 </html>
