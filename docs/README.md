@@ -10,7 +10,7 @@
 <body>
   <h1>🎶 自動播放清單</h1>
   <p id="nowPlaying">載入中...</p>
-  <audio id="audioPlayer" controls autoplay muted></audio>
+  <audio id="audioPlayer" controls autoplay></audio>
 
   <script>
     const tracks = [
@@ -31,9 +31,7 @@
       const src = tracks[index];
       player.src = src;
       nowPlaying.textContent = `正在播放：${src}`;
-      player.play().catch(err => {
-        console.warn("播放失敗：", err);
-      });
+      player.play();
     }
 
     player.addEventListener("ended", () => {
@@ -41,10 +39,11 @@
       playTrack(current);
     });
 
-    // 等 DOM 完成後自動播放第一首
-    document.addEventListener("DOMContentLoaded", () => {
-      playTrack(current);
-    });
+    // 初始播放
+    playTrack(current);
   </script>
 </body>
+
 </html>
+
+上列修改成打開網頁自動播放
