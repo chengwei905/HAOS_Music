@@ -22,8 +22,13 @@
             max-width: 800px;
             text-align: center;
         }
+        #media-title {
+            margin-top: 0;
+            color: #333;
+            height: 24px; /* 保留空間，避免載入時畫面跳動 */
+        }
         #track-selector {
-            width: 60%;
+            width: 100%;
             padding: 10px;
             margin-bottom: 20px;
             border-radius: 4px;
