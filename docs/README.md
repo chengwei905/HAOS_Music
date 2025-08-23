@@ -18,11 +18,11 @@
             padding: 20px;
             border-radius: 8px;
             box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-            width: 150%;
+            width: 200%;
             max-width: 600px;
         }
         #track-selector {
-            width: 80%;
+            width: 50%;
             padding: 10px;
             margin-bottom: 20px;
             border-radius: 4px;
