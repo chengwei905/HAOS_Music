@@ -18,8 +18,8 @@
       background-color: #00a0f4;
       padding: 20px;
       border-radius: 20px;
-      width: 100%;
-      max-width: 600px;
+      width: 200%;
+      max-width: 800px;
       text-align: center;
       color: white;
     }
