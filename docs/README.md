@@ -1,115 +1,124 @@
+<!DOCTYPE html>
 <html lang="zh-Hant">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>音樂播放器</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            flex-direction: column;
-            padding: 20px;
-            background-color: #c0f4f4;
-        }
-        #player-container {
-            background-color: #00a0f4;
-            padding: 20px;
-            border-radius: 20px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-            width: 200%;
-            max-width: 800px;
-            text-align: center; /* 讓內容居中 */
-        }
-        #media-title {
-            margin-top: 0;
-            color: #333;
-        }
-        #track-selector {
-            width: 100%;
-            padding: 10px;
-            margin-bottom: 20px;
-            border-radius: 4px;
-            border: 1px solid #ccc;
-            font-size: 16px;
-        }
-        #audio-player {
-            margin-top: 10px;
-        }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>音樂播放器（含 metadata）</title>
+  <script src="https://cdn.jsdelivr.net/npm/jsmediatags@3.9.7/dist/jsmediatags.min.js"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #c0f4f4;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 20px;
+    }
+    #player-container {
+      background-color: #00a0f4;
+      padding: 20px;
+      border-radius: 20px;
+      width: 100%;
+      max-width: 600px;
+      text-align: center;
+      color: white;
+    }
+    select, audio {
+      width: 100%;
+      margin: 10px 0;
+    }
+    #metadata p {
+      margin: 5px 0;
+    }
+  </style>
 </head>
 <body>
-    <div id="player-container">
-        <h1>音樂播放器</h1>
-        
-        <h2 id="media-title">請選擇曲目</h2>
+  <div id="player-container">
+    <h1>音樂播放器</h1>
+    <h2 id="media-title">請選擇曲目</h2>
 
-        <select id="track-selector"></select>
-
-        <audio id="audio-player" controls style="width: 100%;"></audio>
+    <div id="metadata">
+      <p><strong>標題:</strong> <span id="meta-title">-</span></p>
+      <p><strong>專輯:</strong> <span id="meta-album">-</span></p>
+      <p><strong>藝術家:</strong> <span id="meta-artist">-</span></p>
     </div>
 
-    <script>
-        const trackSelector = document.getElementById('track-selector');
-        const audioPlayer = document.getElementById('audio-player');
-        const mediaTitle = document.getElementById('media-title');
-        const totalTracks = 5; // 這裡請設定您的音檔總數
+    <select id="track-selector"></select>
+    <audio id="audio-player" controls></audio>
+  </div>
 
-        // 載入音檔列表到下拉式選單
-        function loadTracks() {
-            let tracksLoaded = 0;
-            
-            for (let i = 1; i <= totalTracks; i++) {
-                const audio = new Audio(`tracks/track-${i}.mp3`);
-                audio.addEventListener('canplaythrough', () => {
-                    const option = document.createElement('option');
-                    option.value = i;
-                    option.textContent = `Track ${i}`;
-                    trackSelector.appendChild(option);
-                    tracksLoaded++;
-                    
-                    if (tracksLoaded === 1) {
-                        trackSelector.value = 1;
-                        playTrack(1);
-                    }
-                }, { once: true });
+  <script>
+    const totalTracks = 5; // 根據你有幾首歌決定
+    const trackSelector = document.getElementById('track-selector');
+    const audioPlayer = document.getElementById('audio-player');
+    const mediaTitle = document.getElementById('media-title');
 
-                audio.addEventListener('error', () => {
-                    console.error(`無法載入 tracks/track-${i}.mp3`);
-                });
+    const metaTitle = document.getElementById('meta-title');
+    const metaAlbum = document.getElementById('meta-album');
+    const metaArtist = document.getElementById('meta-artist');
+
+    function loadTracks() {
+      for (let i = 1; i <= totalTracks; i++) {
+        const option = document.createElement('option');
+        option.value = i;
+        option.textContent = `Track ${i}`;
+        trackSelector.appendChild(option);
+      }
+      // 預設播放第一首
+      playTrack(1);
+      trackSelector.value = 1;
+    }
+
+    function playTrack(index) {
+      const filePath = `tracks/track-${index}.mp3`;
+      audioPlayer.src = filePath;
+      audioPlayer.play();
+
+      mediaTitle.textContent = `Track ${index}`;
+      metaTitle.textContent = '-';
+      metaAlbum.textContent = '-';
+      metaArtist.textContent = '-';
+
+      // 從網址載入 mp3 並轉為 blob
+      fetch(filePath)
+        .then(response => {
+          if (!response.ok) throw new Error('MP3 載入失敗');
+          return response.blob();
+        })
+        .then(blob => {
+          jsmediatags.read(blob, {
+            onSuccess: function(tag) {
+              const tags = tag.tags;
+              metaTitle.textContent = tags.title || '(無標題)';
+              metaAlbum.textContent = tags.album || '(無專輯)';
+              metaArtist.textContent = tags.artist || '(無藝術家)';
+              if (tags.title) mediaTitle.textContent = tags.title;
+            },
+            onError: function(error) {
+              console.error("Metadata 讀取失敗：", error);
             }
-        }
-
-        // 播放選定的音檔並更新標題
-        function playTrack(index) {
-            const trackPath = `tracks/track-${index}.mp3`;
-            audioPlayer.src = trackPath;
-            audioPlayer.play();
-            
-            // 更新標題
-            mediaTitle.textContent = `Track ${index}`;
-        }
-
-        // 當下拉式選單改變時，播放選定的音檔
-        trackSelector.addEventListener('change', (event) => {
-            const selectedIndex = event.target.value;
-            playTrack(selectedIndex);
+          });
+        })
+        .catch(error => {
+          console.error("MP3 下載或 metadata 解析錯誤：", error);
         });
+    }
 
-        // 當前一個音檔播放完畢，自動播放下一首
-        audioPlayer.addEventListener('ended', () => {
-            const currentIndex = parseInt(trackSelector.value);
-            const nextIndex = currentIndex + 1;
-            
-            const nextOption = trackSelector.querySelector(`option[value='${nextIndex}']`);
-            if (nextOption) {
-                trackSelector.value = nextIndex;
-                playTrack(nextIndex);
-            }
-        });
+    trackSelector.addEventListener('change', e => {
+      playTrack(e.target.value);
+    });
 
-        loadTracks();
-    </script>
+    audioPlayer.addEventListener('ended', () => {
+      const current = parseInt(trackSelector.value);
+      const next = current + 1;
+      if (next <= totalTracks) {
+        trackSelector.value = next;
+        playTrack(next);
+      }
+    });
+
+    loadTracks();
+  </script>
 </body>
 </html>
+
