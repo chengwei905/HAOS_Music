@@ -17,8 +17,8 @@
       background-color: #00a0f4;
       padding: 20px;
       border-radius: 20px;
-      width: 200%;
-      max-width: 800px;
+      width: 500px;
+      max-width: 600px;
       text-align: center;
       color: white;
     }
