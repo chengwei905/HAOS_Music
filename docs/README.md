@@ -23,7 +23,7 @@
       color: white;
     }
     select, audio {
-      width: 150%;
+      width: 100%;
       margin: 10px 0;
     }
     #metadata p {
@@ -33,7 +33,7 @@
 </head>
 <body>
   <div id="player-container">
-    <h1🎶音樂播放器</h1>
+    <h1>🎶音樂播放器</h1>
     <h2 id="media-title">請選擇曲目</h2>
 
     <div id="metadata" >
