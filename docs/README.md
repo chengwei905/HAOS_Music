@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 <html lang="zh-Hant">
 <head>
   <meta charset="UTF-8" />
@@ -17,8 +18,8 @@
       background-color: #00a0f4;
       padding: 20px;
       border-radius: 20px;
-      width: 200%;
-      max-width: 800px;
+      width: 100%;
+      max-width: 600px;
       text-align: center;
       color: white;
     }
@@ -36,10 +37,10 @@
     <h1>音樂播放器</h1>
     <h2 id="media-title">請選擇曲目</h2>
 
-    <div id="metadata">
-      <p><strong>標題:</strong> <span id="meta-title">-</span></p>
-      <p><strong>專輯:</strong> <span id="meta-album">-</span></p>
-      <p><strong>藝術家:</strong> <span id="meta-artist">-</span></p>
+    <div id="metadata" >
+      <p align="left"><strong>標題:</strong> <span id="meta-title">-</span></p>
+      <p align="left"><strong>專輯:</strong> <span id="meta-album">-</span></p>
+      <p align="left"><strong>藝術家:</strong> <span id="meta-artist">-</span></p>
     </div>
 
     <select id="track-selector"></select>
@@ -74,9 +75,9 @@
       audioPlayer.play();
 
       mediaTitle.textContent = `Track ${index}`;
-      metaTitle.textContent = '-';
-      metaAlbum.textContent = '-';
-      metaArtist.textContent = '-';
+      metaTitle.textContent = ' ';
+      metaAlbum.textContent = ' ';
+      metaArtist.textContent = ' ';
 
       // 從網址載入 mp3 並轉為 blob
       fetch(filePath)
@@ -120,4 +121,5 @@
   </script>
 </body>
 </html>
+
 
